@@ -14,7 +14,7 @@
             <p class="text-sm text-gray-700">{{ person["Job Title"] || 'Role not specified' }}</p>
 
             <!-- Department -->
-            <span class="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-2 border">{{
+            <span class="bg-gray-200 border border-gray-400 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-2 border">{{
                 person["Department"]
                 || 'Unknown Department' }}</span>
 
@@ -40,10 +40,10 @@
                     {{ getIcCost() > 0 ? (getManagementCost() / getIcCost()).toFixed(2) : 'N/A' }}
                 </p>
             </div>
-            <button @click="toggleExpand" class="text-sm focus:outline-none">
+            <button @click="toggleExpand" class="text-sm focus:outline-none ">
                 <div :class="[
-                    isExpanded ? 'bg-gray-100' : 'bg-gray-300',
-                    'text-gray-700 rounded-full px-3 py-1 text-xs mt-3'
+                    isExpanded ? 'bg-gray-50' : 'bg-gray-200',
+                    'text-gray-700 rounded-full px-3 py-1 text-xs mt-3 border border-gray-400'
                 ]" @mouseover="hover = true" @mouseleave="hover = false">
                     {{ displayedDescendants }}/{{ countDescendants() }} Descendants
                 </div>
