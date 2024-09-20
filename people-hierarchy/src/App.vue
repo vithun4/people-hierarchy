@@ -12,6 +12,7 @@
 
     <div class="legend">
       <h2 class="text-xl font-bold">Legend</h2>
+      <p class="subtitle">Zoom & drag to look at all the descendants.</p>
       <div class="legend-items">
         <div v-for="(color, department) in departmentColors" :key="department" class="legend-item">
           <div :class="['w-6 h-6 rounded-full', color]"></div>
@@ -159,7 +160,7 @@ export default {
       } else {
         this.scale -= scaleAmount;
       }
-      this.scale = Math.min(Math.max(0.5, this.scale), 3);
+      this.scale = Math.min(Math.max(0.2, this.scale), 3); // Allow more zooming out
       this.applyTransform();
     },
     startDrag(event) {
@@ -185,8 +186,19 @@ export default {
 </script>
 
 <style>
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  /* Prevent scrolling */
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .people-container {
@@ -195,6 +207,8 @@ export default {
   justify-content: center;
   margin: 1rem;
   cursor: grab;
+  flex-grow: 1;
+  /* Allow the container to grow and fill the available space */
 }
 
 .people-container:active {
@@ -218,9 +232,12 @@ export default {
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  width: 300px; /* Fixed width */
-  max-height: 300px; /* Maximum height */
-  overflow-y: auto; /* Scrollable vertically */
+  width: 300px;
+  /* Fixed width */
+  max-height: 300px;
+  /* Maximum height */
+  overflow-y: auto;
+  /* Scrollable vertically */
 }
 
 .legend h2 {
@@ -248,11 +265,28 @@ export default {
 }
 
 .legend .legend-item div {
-  margin-right: 0.5rem; /* Space between color and title */
+  margin-right: 0.5rem;
+  /* Space between color and title */
 }
 
 .legend .legend-item span {
   flex-grow: 1;
   text-align: right;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+h1 {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 0;
+  margin: 0;
+  z-index: 1;
 }
 </style>
