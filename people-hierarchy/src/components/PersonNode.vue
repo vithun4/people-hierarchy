@@ -110,26 +110,52 @@ export default {
     },
     methods: {
         toggleExpand() {
-            if (!this.isExpanded && !this.subordinatesLoaded) {
-                this.loadSubordinates();
+            if (!this.isExpanded) {
+                // Expanding: Load subordinates if not already loaded
+                if (!this.subordinatesLoaded) {
+                    this.loadSubordinates();  // Load subordinates on first expansion
+                } else {
+                    // Increment the number of displayed descendants based on the visible descendants
+                    const visibleDescendants = this.calculateVisibleDescendants(this.subordinates);
+                    this.$emit('incrementDisplayedDescendants', visibleDescendants);
+                    this.displayedDescendants = visibleDescendants;  // Set the count for currently visible descendants
+                }
+            } else {
+                // Collapsing: Decrement the displayed descendants count
+                this.$emit('incrementDisplayedDescendants', -this.displayedDescendants);
+                this.displayedDescendants = 0;  // Reset the displayed descendants count
             }
             this.isExpanded = !this.isExpanded;
+        },
+        calculateVisibleDescendants(subordinates) {
+            let count = subordinates.length; // Count the direct subordinates
+            subordinates.forEach(subordinate => {
+                if (subordinate.isExpanded && subordinate.subordinates && subordinate.subordinates.length > 0) {
+                    // Recursively count only if the node is expanded
+                    count += this.calculateVisibleDescendants(subordinate.subordinates);
+                }
+            });
+            return count;
         },
         loadSubordinates() {
             this.loadSubordinatesCallback(this.person.EmployeeId, fetchedSubordinates => {
                 this.subordinates = fetchedSubordinates || [];
                 this.subordinatesLoaded = true;
 
-                // Update displayed descendants count
-                this.displayedDescendants = this.subordinates.length;
-                this.$emit('incrementDisplayedDescendants', this.displayedDescendants);  // Emit total to parent
+                // When expanding for the first time, count the visible subordinates
+                if (this.isExpanded) {
+                    const visibleDescendants = this.calculateVisibleDescendants(this.subordinates);
+                    this.$emit('incrementDisplayedDescendants', visibleDescendants);
+                    this.displayedDescendants = visibleDescendants;
+                }
             });
         },
         incrementDisplayedDescendants(count) {
-            this.displayedDescendants += count;  // Increment the displayed descendants count
-            this.$emit('incrementDisplayedDescendants', count);  // Emit to parent node
+            this.displayedDescendants += count;
+            this.$emit('incrementDisplayedDescendants', count);  // Propagate to parent node
         },
         countDescendants() {
+            // Count total descendants, including those not currently visible
             if (!this.subordinatesLoaded) {
                 this.loadSubordinates();
             }
@@ -139,6 +165,7 @@ export default {
             return this.descendantCountMemo;
         },
         calculateDescendants(person) {
+            // Recursively calculate all descendants, regardless of visibility
             if (!person.subordinates || person.subordinates.length === 0) return 0;
             return person.subordinates.reduce((count, subordinate) => {
                 return count + 1 + this.calculateDescendants(subordinate);
