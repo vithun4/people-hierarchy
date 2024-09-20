@@ -40,14 +40,15 @@
                     {{ getIcCost() > 0 ? (getManagementCost() / getIcCost()).toFixed(2) : 'N/A' }}
                 </p>
             </div>
-
-            <!-- Expand/Collapse Button -->
-            <button @click="toggleExpand" class="text-sm text-blue-500 focus:outline-none">
-                <!-- {{ isExpanded ? 'Hide Subordinates' : 'View Subordinates' }} -->
-                <div class="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs mt-3">
+            <button @click="toggleExpand" class="text-sm focus:outline-none">
+                <div :class="[
+                    isExpanded ? 'bg-gray-100' : 'bg-gray-300',
+                    'text-gray-700 rounded-full px-3 py-1 text-xs mt-3'
+                ]" @mouseover="hover = true" @mouseleave="hover = false">
                     {{ displayedDescendants }}/{{ countDescendants() }} Descendants
                 </div>
             </button>
+
         </div>
 
         <!-- Subordinates (Render only when expanded and subordinates exist) -->

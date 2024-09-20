@@ -12,7 +12,7 @@
 
     <div class="legend">
       <h2 class="text-xl font-bold">Legend</h2>
-      <p class="subtitle">Zoom & drag to look at all the descendants.</p>
+      <p class="subtitle">Zoom & drag to look at descendants.</p>
       <div class="legend-items">
         <div v-for="(color, department) in departmentColors" :key="department" class="legend-item">
           <div :class="['w-6 h-6 rounded-full', color]"></div>
