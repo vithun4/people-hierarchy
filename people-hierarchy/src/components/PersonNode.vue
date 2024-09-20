@@ -8,11 +8,10 @@
                 :class="['w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-bold mb-2', avatarColor]">
                 {{ initials }}
             </div>
-            {{avatarColor}}
 
             <!-- Name and Role -->
             <p class="font-bold text-gray-700">{{ person["Name"] }}</p>
-            <p class="text-sm text-gray-500">{{ person["Job Title"] || 'Role not specified' }}</p>
+            <p class="text-sm text-gray-700">{{ person["Job Title"] || 'Role not specified' }}</p>
 
             <!-- Department -->
             <span class="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-2 border">{{
@@ -42,22 +41,20 @@
                 </p>
             </div>
 
-            <!-- Displayed Descendants / Total Descendants -->
-            <div class="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs mt-2">
-                {{ displayedDescendants }}/{{ countDescendants() }} Descendants
-            </div>
-
             <!-- Expand/Collapse Button -->
-            <button @click="toggleExpand" class="mt-4 text-sm text-blue-500 focus:outline-none">
-                {{ isExpanded ? 'Hide Subordinates' : 'View Subordinates' }}
+            <button @click="toggleExpand" class="text-sm text-blue-500 focus:outline-none">
+                <!-- {{ isExpanded ? 'Hide Subordinates' : 'View Subordinates' }} -->
+                <div class="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-xs mt-3">
+                    {{ displayedDescendants }}/{{ countDescendants() }} Descendants
+                </div>
             </button>
         </div>
 
         <!-- Subordinates (Render only when expanded and subordinates exist) -->
         <div v-if="isExpanded && subordinates.length > 0" class="flex flex-col items-center mt-4">
             <div class="flex flex-row items-start space-x-4">
-                <PersonNode v-for="subordinate in subordinates" :key="subordinate.EmployeeId" :person="subordinate" :departmentColors="departmentColors"
-                    :loadSubordinatesCallback="loadSubordinatesCallback"
+                <PersonNode v-for="subordinate in subordinates" :key="subordinate.EmployeeId" :person="subordinate"
+                    :departmentColors="departmentColors" :loadSubordinatesCallback="loadSubordinatesCallback"
                     @incrementDisplayedDescendants="incrementDisplayedDescendants" />
             </div>
         </div>
