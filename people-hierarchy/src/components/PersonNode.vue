@@ -51,13 +51,16 @@
                     {{ getIcCost() > 0 ? (getManagementCost() / getIcCost()).toFixed(2) : 'N/A' }}
                 </p>
             </div>
-            <button @click="toggleExpand" class="text-sm focus:outline-none ">
+            <button v-if="countDescendants() > 0" @click="toggleExpand" class="text-sm focus:outline-none">
                 <div
                     :class="[isExpanded ? 'bg-gray-50' : 'bg-gray-200',
                         'text-gray-700 rounded-full px-3 py-1 text-xs mt-3 border border-gray-400 hover:bg-gray-100']">
                     {{ displayedDescendants }}/{{ countDescendants() }} Descendants {{ isExpanded ? '▲' : '▼' }}
                 </div>
             </button>
+            <div v-else class="text-sm text-gray-500 mt-3">
+                No Descendants
+            </div>
             <div v-if="isExpanded && subordinates.length > 0" class="line-connector"></div>
         </div>
 
@@ -65,7 +68,8 @@
         <div class="subordinate-top-line"></div>
         <!-- Subordinates (Render only when expanded and subordinates exist) -->
         <div v-if="isExpanded && subordinates.length > 0"
-            class="flex flex-col items-center mt-4 p-4 border border-black border-t-2 border-0">
+            class="flex flex-col items-center mt-4 p-4 border border-black border-t-2 border-0"
+            style="border-top-width: 1.5px;">
             <div class="flex flex-row items-start space-x-4">
                 <PersonNode v-for="subordinate in subordinates" :key="subordinate.EmployeeId" :person="subordinate"
                     :departmentColors="departmentColors" :loadSubordinatesCallback="loadSubordinatesCallback"
