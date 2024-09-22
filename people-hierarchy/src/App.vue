@@ -13,6 +13,7 @@
     <div class="legend">
       <h2 class="text-xl font-bold">Legend</h2>
       <p class="subtitle">Zoom & drag to look at descendants.</p>
+      <p class="subtitle">Click subordinates to display below</p>
       <div class="legend-items">
         <div v-for="(color, department) in departmentColors" :key="department" class="legend-item">
           <div :class="['w-6 h-6 rounded-full', color]"></div>
@@ -139,8 +140,13 @@ export default {
     assignDepartmentColor(department) {
       if (!this.departmentColors[department]) {
         const color = this.defaultColors[this.colorIndex % this.defaultColors.length];
-        this.departmentColors[department] = color;
         this.colorIndex++;
+
+        // Add the new department color to the front
+        this.departmentColors = {
+          [department]: color,
+          ...this.departmentColors
+        };
       }
     },
     initZoomAndDrag() {

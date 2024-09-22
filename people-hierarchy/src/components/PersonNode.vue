@@ -1,8 +1,8 @@
 <template>
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center relative">
         <!-- Manager Node -->
         <div v-if="person"
-            :class="['relative flex flex-col items-center rounded-lg shadow-md p-4 text-center mb-4 w-64 border', departmentColor]">
+            :class="['relative flex flex-col items-center rounded-lg shadow-md p-4 text-center w-64 border', departmentColor]">
             <!-- Avatar or Initials -->
             <div
                 :class="['w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-bold mb-2', avatarColor]">
@@ -14,14 +14,25 @@
             <p class="text-sm text-gray-700">{{ person["Job Title"] || 'Role not specified' }}</p>
 
             <!-- Department -->
-            <span class="bg-gray-200 border border-gray-400 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-2 border">{{
-                person["Department"]
-                || 'Unknown Department' }}</span>
+            <span
+                class="bg-gray-200 border border-gray-400 text-gray-700 rounded-full px-3 py-1 text-xs font-medium mb-2 ">{{
+                    person["Department"]
+                    || 'Unknown Department' }}</span>
 
             <!-- Location and Level -->
-            <div :class="['flex flex-col items-center text-xs ']">
-                <p>{{ person["Location"] || 'Location not specified' }}</p>
+            <div :class="['flex flex-row items-center text-xs ']">
+                <div :class="['flex items-center space-x-1 border rounded-full px-3 py-1 mr-1', pillColor]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                        stroke="currentColor" class="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round"
+                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+                    <p>{{ person["Location"] || 'Location not specified' }}</p>
+                </div>
+                <div :class="['flex items-center space-x-1 border rounded-full px-3 py-1', pillColor]">
                 <p>Level {{ person["level"] || 'N/A' }}</p>
+                </div>
             </div>
 
             <!-- Management Cost, IC Cost, and Total Cost -->
@@ -41,18 +52,20 @@
                 </p>
             </div>
             <button @click="toggleExpand" class="text-sm focus:outline-none ">
-                <div :class="[
-                    isExpanded ? 'bg-gray-50' : 'bg-gray-200',
-                    'text-gray-700 rounded-full px-3 py-1 text-xs mt-3 border border-gray-400'
-                ]" @mouseover="hover = true" @mouseleave="hover = false">
-                    {{ displayedDescendants }}/{{ countDescendants() }} Descendants
+                <div
+                    :class="[isExpanded ? 'bg-gray-50' : 'bg-gray-200',
+                        'text-gray-700 rounded-full px-3 py-1 text-xs mt-3 border border-gray-400 hover:bg-gray-100']">
+                    {{ displayedDescendants }}/{{ countDescendants() }} Descendants {{ isExpanded ? '▲' : '▼' }}
                 </div>
             </button>
-
+            <div v-if="isExpanded && subordinates.length > 0" class="line-connector"></div>
         </div>
 
+        <!-- Line connecting parent and subordinates -->
+        <div class="subordinate-top-line"></div>
         <!-- Subordinates (Render only when expanded and subordinates exist) -->
-        <div v-if="isExpanded && subordinates.length > 0" class="flex flex-col items-center mt-4">
+        <div v-if="isExpanded && subordinates.length > 0"
+            class="flex flex-col items-center mt-4 p-4 border border-black border-t-2 border-0">
             <div class="flex flex-row items-start space-x-4">
                 <PersonNode v-for="subordinate in subordinates" :key="subordinate.EmployeeId" :person="subordinate"
                     :departmentColors="departmentColors" :loadSubordinatesCallback="loadSubordinatesCallback"
@@ -234,7 +247,6 @@ export default {
         getAvatarColor(baseColor, defaultColor) {
             // Adjust the departmentColor class to produce a darker shade (e.g., bg-blue-400 if bg-blue-100)
             if (!baseColor) return defaultColor;
-            console.log(baseColor.replace('100', '400'));
             return baseColor.replace('100', '400');
         },
         getTextColorFromBorder(baseColor) {
@@ -244,3 +256,31 @@ export default {
     }
 };
 </script>
+<style>
+.line-connector {
+    position: absolute;
+    width: 2px;
+    height: 18px;
+    background-color: black;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dashed-container {
+    position: relative;
+    margin-top: 20px;
+    /* Adjust to create space for the line */
+}
+
+.subordinate-top-line {
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background-color: black;
+    top: -16px;
+    /* Adjust to position the line at the top of the subordinate */
+    left: 50%;
+    transform: translateX(-50%);
+}
+</style>
