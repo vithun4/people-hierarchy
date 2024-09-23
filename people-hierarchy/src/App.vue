@@ -164,7 +164,15 @@ export default {
       container.addEventListener('touchmove', this.handleTouchDrag);
       container.addEventListener('touchend', this.endTouchDrag);
     },
-
+    startTouch(event) {
+      if (event.touches.length === 2) {
+        this.isPinching = true;
+        this.initialPinchDistance = this.getPinchDistance(event);
+        this.initialScale = this.scale;
+      } else {
+        this.startTouchDrag(event);
+      }
+    },
     // Handle touch events
     startTouchDrag(event) {
       this.isDragging = true;
@@ -181,6 +189,27 @@ export default {
     },
     endTouchDrag() {
       this.isDragging = false;
+    },
+    handleTouchMove(event) {
+      if (this.isPinching && event.touches.length === 2) {
+        const pinchDistance = this.getPinchDistance(event);
+        const scaleChange = pinchDistance / this.initialPinchDistance;
+        this.scale = Math.min(Math.max(this.initialScale * scaleChange, 0.2), 3); // Keep scale within limits
+        this.applyTransform();
+      } else {
+        this.handleTouchDrag(event);
+      }
+    },
+    endTouch() {
+      this.isPinching = false;
+      this.endTouchDrag();
+    },
+    getPinchDistance(event) {
+      const touch1 = event.touches[0];
+      const touch2 = event.touches[1];
+      const deltaX = touch1.clientX - touch2.clientX;
+      const deltaY = touch1.clientY - touch2.clientY;
+      return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     },
     handleZoom(event) {
       event.preventDefault();
@@ -285,6 +314,7 @@ body,
   cursor: grab;
   flex-grow: 1;
   position: relative;
+  touch-action: none;
 }
 
 .people-container:active {
