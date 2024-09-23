@@ -1,44 +1,114 @@
 # People Hierarchy Visualization
 
-This project visualizes an organization's hierarchy using Vue.js and TailwindCSS. It allows users to expand and collapse employee nodes and displays key metrics like management cost, IC (individual contributor) cost, total cost, and number of descendants.
+This project was created as part of a coding test for an engineering role, tasked with visualizing an organization's hierarchy using **Vue.js** and **TailwindCSS**. The solution efficiently handles large datasets, including calculating key metrics such as descendant counts, management cost, IC cost, and total cost.
 
-## Built By
+## Author
 
-**Vithun Vigneswaran**
+This project was developed by **Vithun Vigneswaran** based on a prompt created by Saahil Jaffer, Dave Kim, and Oskar Szulc.
+
+---
+
+## Assignment Overview
+
+### Objective
+Given a CSV file with people data, the goal is to create a responsive layout that displays the hierarchy of reporting lines. Users should be able to interact with the nodes to expand or collapse them and view metrics like descendant counts, management costs, and IC costs.
+
+### Features
+1. **Hierarchical Layout**: The people hierarchy is displayed as expandable/collapsible nodes, each representing a person.
+2. **Memoized Descendant Count**: The number of descendants for each node is calculated efficiently using memoization to avoid repeated recursive calculations.
+3. **Key Metrics**:
+   - **Management Cost**: The recursive sum of the salary of descendants who have subordinates.
+   - **IC (Individual Contributor) Cost**: The recursive sum of the salary of descendants who do not have subordinates.
+   - **Total Cost**: The total salary of all descendants.
+   - **Management Cost Ratio**: The ratio between individual contributors and managers.
+4. **Zoom & Drag**: The interface allows zooming and dragging to help navigate large hierarchies.
+5. **Responsive UI**: Built with **TailwindCSS** for a clean and responsive design.
+
+---
 
 ## Technologies Used
 
-- **Vue.js**: Frontend framework for building interactive UIs.
-- **TailwindCSS**: For responsive and clean design.
-- **d3-hierarchy**: To handle hierarchical data.
-- **PapaParse**: For CSV parsing.
+- **Vue.js**: JavaScript framework for building the interactive user interface.
+- **TailwindCSS**: Utility-first CSS framework for styling the application.
+- **d3-hierarchy**: A useful library from D3.js to handle hierarchical data and relationships.
+- **PapaParse**: A fast CSV parser used for loading and processing the people data.
 
-## What It Does
+---
 
-- Displays employee hierarchy with expandable nodes.
-- Shows descendant counts, management costs, IC costs, and total costs.
-- Supports zooming and dragging for better navigation of large hierarchies.
+## Data
 
-## How to Run
+### Input:
+The project works with a provided CSV file (`peopleData.csv`) that includes fields such as:
+- **Employee ID**
+- **Manager ID**
+- **Department**
+- **Salary**
 
-1. Clone the repository:
+### Example Metrics:
+- **Management Cost**: $500,000
+- **IC Cost**: $200,000
+- **Total Cost**: $700,000
+- **Management Cost Ratio**: 2.5
+
+This data is processed to compute the hierarchical relationships and the metrics described.
+
+---
+
+## Installation & Running the Project
+
+To run this project on your local machine, follow these steps:
+
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/vithun4/people-hierarchy.git
    cd people-hierarchy
    ```
 
-2. Install dependencies:
+2. **Install Dependencies**:
+   Ensure that `npm` is installed on your machine. Then run:
    ```bash
    npm install
    ```
 
-3. Run the app:
+3. **Run the Application**:
+   Start the local development server with:
    ```bash
    npm run serve
    ```
 
-4. Open `http://localhost:8080` in your browser.
+4. **View in Browser**:
+   The app will run on `http://localhost:8080`. Open this URL in your browser to view the hierarchy visualization.
 
-## Live Demo
+---
 
-You can also view the live demo on Vercel: [people-hierarchy.vercel.app](https://people-hierarchy.vercel.app/)
+## What We Focus On
+
+### Efficient Calculations
+- **Memoization**: Memoized descendant counts to prevent expensive recalculations of descendants when nodes are expanded or collapsed.
+- **Recursive Salary Calculations**: Management and IC costs are recursively calculated using efficient tree traversal techniques.
+
+### Clean & Responsive UI
+- The UI is clean and minimal, using TailwindCSS for responsive design.
+- A flexible interface allows for easy navigation of large datasets with drag-and-zoom functionality.
+
+---
+
+## How to Send Back
+
+Please either:
+1. **Send a zipped file** that includes the source code and a README file.
+2. **Provide a download link** to access the files.
+
+---
+
+## Requirements
+
+- **No TypeScript**: JavaScript was used exclusively for the Vue components.
+- **Vue.js** and **TailwindCSS** were required, which have been used for the structure and styling respectively.
+
+---
+
+## Future Enhancements
+
+1. **Performance Optimizations**: Further improvements can be made for handling even larger datasets (50k+ nodes) by employing virtual scrolling or more advanced rendering techniques.
+2. **Additional Filters**: Adding filters for departments, roles, or salary brackets to enhance the UI's usability for deeper insights.
