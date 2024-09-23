@@ -21,7 +21,7 @@ Given a CSV file with people data, the goal is to create a responsive layout tha
    - **IC (Individual Contributor) Cost**: The recursive sum of the salary of descendants who do not have subordinates.
    - **Total Cost**: The total salary of all descendants.
    - **Management Cost Ratio**: The ratio between individual contributors and managers.
-4. **Zoom & Drag**: The interface allows zooming and dragging to help navigate large hierarchies.
+4. **Zoom & Drag**: The interface allows zooming and dragging to help navigate large hierarchies (Desktop & Mobile)
 5. **Responsive UI**: Built with **TailwindCSS** for a clean and responsive design.
 
 ---
