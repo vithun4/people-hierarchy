@@ -5,7 +5,7 @@
     <p class="subtitle">Click subordinates to display below</p>
     <div class="legend-items">
       <div v-for="(color, department) in departmentColors" :key="department" class="legend-item">
-        <div :class="['w-6 h-6 rounded-full', color]"></div>
+        <div :class="`w-6 h-6 rounded-full ${color}`"></div>
         <span>{{ department }}</span>
       </div>
     </div>
@@ -15,7 +15,10 @@
 <script>
 export default {
   props: {
-    departmentColors: Object,
+    departmentColors: {
+      type: Object,
+      required: true,
+    },
   },
 };
 </script>
@@ -39,17 +42,18 @@ export default {
   text-align: center;
 }
 
-.legend .legend-items {
+.legend-items {
   display: flex;
   flex-direction: column;
 }
 
-.legend .legend-item {
+.legend-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
 }
+
 .subtitle {
   font-size: 0.875rem;
   color: #555;
