@@ -81,34 +81,8 @@ To run this project on your local machine, follow these steps:
 
 ---
 
-## What We Focus On
-
-### Efficient Calculations
-- **Memoization**: Memoized descendant counts to prevent expensive recalculations of descendants when nodes are expanded or collapsed.
-- **Recursive Salary Calculations**: Management and IC costs are recursively calculated using efficient tree traversal techniques.
-
-### Clean & Responsive UI
-- The UI is clean and minimal, using TailwindCSS for responsive design.
-- A flexible interface allows for easy navigation of large datasets with drag-and-zoom functionality.
-
----
-
-## How to Send Back
-
-Please either:
-1. **Send a zipped file** that includes the source code and a README file.
-2. **Provide a download link** to access the files.
-
----
-
 ## Requirements
 
 - **No TypeScript**: JavaScript was used exclusively for the Vue components.
 - **Vue.js** and **TailwindCSS** were required, which have been used for the structure and styling respectively.
 
----
-
-## Future Enhancements
-
-1. **Performance Optimizations**: Further improvements can be made for handling even larger datasets (50k+ nodes) by employing virtual scrolling or more advanced rendering techniques.
-2. **Additional Filters**: Adding filters for departments, roles, or salary brackets to enhance the UI's usability for deeper insights.
