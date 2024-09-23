@@ -8,7 +8,6 @@
       </button>
     </div>
 
-    <!-- Simple layout for PersonNode components -->
     <div class="people-container" ref="peopleContainer">
       <div v-for="(person, index) in topLevelEmployees" :key="index" class="person-node">
         <PersonNode :person="person" :departmentColors="departmentColors" :loadSubordinatesCallback="fetchSubordinates"
@@ -34,13 +33,13 @@ export default {
   },
   data() {
     return {
-      allEmployees: [],
-      topLevelEmployees: [],
-      loading: true,
+      allEmployees: [], // All employee data from the CSV
+      topLevelEmployees: [], // Top-level employees (those without managers)
+      loading: true, // Loading state for data fetching
       departmentColors: {
-        'Unknown Department': 'bg-gray-100 border-gray-500'
+        'Unknown Department': 'bg-gray-100 border-gray-500' // Default color for unknown departments
       },
-      defaultColors: [
+      defaultColors: [ // Default colors for departments
         'bg-green-100 border-green-500',
         'bg-blue-100 border-blue-500',
         'bg-yellow-100 border-yellow-500',
@@ -56,24 +55,24 @@ export default {
         'bg-amber-100 border-amber-500',
         'bg-violet-100 border-violet-500',
         'bg-rose-100 border-rose-500',
-        'bg-gray-100 border-gray-500' // Fallback
+        'bg-gray-100 border-gray-500' // Fallback color
       ],
-      colorIndex: 0,
-      scale: 1,
-      translateX: 0,
-      translateY: 0,
-      isDragging: false,
-      startX: 0,
-      startY: 0,
-      displayedDescendants: 0, // Add this line to track the displayed descendants
-      isLegendVisible: true // Add this line to track the visibility of the legend
+      colorIndex: 0, // Index to track the current color for departments
+      scale: 1, // Zoom scale
+      translateX: 0, // X-axis translation for dragging
+      translateY: 0, // Y-axis translation for dragging
+      isDragging: false, // Dragging state
+      startX: 0, // Initial X position for dragging
+      startY: 0, // Initial Y position for dragging
+      displayedDescendants: 0, // Track the number of displayed descendants
+      isLegendVisible: true // Track the visibility of the legend
     };
   },
   created() {
-    this.loadCSV();
+    this.loadCSV(); // Load CSV data when the component is created
   },
   mounted() {
-    this.initZoomAndDrag();
+    this.initZoomAndDrag(); // Initialize zoom and drag functionality when the component is mounted
   },
   methods: {
     loadCSV() {
@@ -91,8 +90,8 @@ export default {
         row.Salary = parseFloat(row["Salary"].replace(/[$,]/g, '')) || 0; // Clean salary
         row.Manager = row["Manager"] ? parseInt(row["Manager"], 10) : -1; // Handle manager IDs
         row.EmployeeId = parseInt(row["Employee Id"], 10); // Ensure EmployeeId is a number
-        row.subordinates = [];
-        this.assignDepartmentColor(row["Department"]);
+        row.subordinates = []; // Initialize subordinates array
+        this.assignDepartmentColor(row["Department"]); // Assign department color
         return row;
       });
 
@@ -173,8 +172,7 @@ export default {
         // Single finger for dragging
         this.startTouchDrag(event); // Call the drag function for single touch
       }
-    }
-    ,
+    },
     // Handle touch events
     startTouchDrag(event) {
       this.isDragging = true;

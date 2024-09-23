@@ -107,26 +107,32 @@ export default {
         };
     },
     computed: {
+        // Compute initials from the person's name
         initials() {
             return this.person && this.person["Name"]
                 ? this.person["Name"].split(' ').map(n => n[0]).join('')
                 : ''; // Return an empty string if Name is undefined
         },
+        // Compute the department color based on the person's department
         departmentColor() {
             const department = this.person["Department"] || 'Unknown Department';
             return this.departmentColors[department] || 'bg-gray-50 border-gray-500';
         },
+        // Compute the pill color based on the department color
         pillColor() {
             return this.getAdjustedColor(this.departmentColor, 'bg-green-200');
         },
+        // Compute the avatar color based on the department color
         avatarColor() {
             return this.getAvatarColor(this.departmentColor, 'bg-blue-400');
         },
+        // Compute the text color based on the department color
         textColor() {
             return this.getTextColorFromBorder(this.departmentColor);
         }
     },
     methods: {
+        // Toggle the expansion state of the node
         toggleExpand() {
             if (!this.isExpanded) {
                 // Expanding: Load subordinates if not already loaded
@@ -145,6 +151,7 @@ export default {
             }
             this.isExpanded = !this.isExpanded;
         },
+        // Calculate the number of visible descendants
         calculateVisibleDescendants(subordinates) {
             let count = subordinates.length; // Count the direct subordinates
             subordinates.forEach(subordinate => {
@@ -155,6 +162,7 @@ export default {
             });
             return count;
         },
+        // Load subordinates using the provided callback
         loadSubordinates() {
             this.loadSubordinatesCallback(this.person.EmployeeId, fetchedSubordinates => {
                 this.subordinates = fetchedSubordinates || [];
@@ -168,12 +176,13 @@ export default {
                 }
             });
         },
+        // Increment the displayed descendants count
         incrementDisplayedDescendants(count) {
             this.displayedDescendants += count;
             this.$emit('incrementDisplayedDescendants', count);  // Propagate to parent node
         },
+        // Count total descendants, including those not currently visible
         countDescendants() {
-            // Count total descendants, including those not currently visible
             if (!this.subordinatesLoaded) {
                 this.loadSubordinates();
             }
@@ -182,19 +191,21 @@ export default {
             }
             return this.descendantCountMemo;
         },
+        // Recursively calculate all descendants, regardless of visibility
         calculateDescendants(person) {
-            // Recursively calculate all descendants, regardless of visibility
             if (!person.subordinates || person.subordinates.length === 0) return 0;
             return person.subordinates.reduce((count, subordinate) => {
                 return count + 1 + this.calculateDescendants(subordinate);
             }, 0);
         },
+        // Get the management cost, memoized
         getManagementCost() {
             if (this.managementCostMemo === null) {
                 this.managementCostMemo = this.calculateManagementCost(this.person);
             }
             return this.managementCostMemo;
         },
+        // Calculate the management cost recursively
         calculateManagementCost(person) {
             let cost = 0;
             if (person.subordinates.length > 0) {
@@ -206,12 +217,14 @@ export default {
             }
             return cost;
         },
+        // Get the IC cost, memoized
         getIcCost() {
             if (this.icCostMemo === null) {
                 this.icCostMemo = this.calculateIcCost(this.person);
             }
             return this.icCostMemo;
         },
+        // Calculate the IC cost recursively
         calculateIcCost(person) {
             let cost = 0;
             if (person.subordinates.length > 0) {
@@ -225,12 +238,14 @@ export default {
             }
             return cost;
         },
+        // Get the total cost, memoized
         getTotalCost() {
             if (this.totalCostMemo === null) {
                 this.totalCostMemo = this.calculateTotalCost(this.person);
             }
             return this.totalCostMemo;
         },
+        // Calculate the total cost recursively
         calculateTotalCost(person) {
             let cost = person["Salary"];
             if (person.subordinates.length > 0) {
@@ -240,21 +255,22 @@ export default {
             }
             return cost;
         },
+        // Format a number as currency
         formatCurrency(value) {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
         },
+        // Adjust the departmentColor class to produce a lighter shade
         getAdjustedColor(baseColor, defaultColor) {
-            // Adjust the departmentColor class to produce a lighter shade (e.g., bg-green-200 if bg-green-100)
             if (!baseColor) return defaultColor;
             return baseColor.replace('100', '200');
         },
+        // Adjust the departmentColor class to produce a darker shade
         getAvatarColor(baseColor, defaultColor) {
-            // Adjust the departmentColor class to produce a darker shade (e.g., bg-blue-400 if bg-blue-100)
             if (!baseColor) return defaultColor;
             return baseColor.replace('100', '400');
         },
+        // Translate the background color class to a corresponding text color class
         getTextColorFromBorder(baseColor) {
-            // Translate the background color class to a corresponding text color class
             return baseColor.replace('bg', 'text').replace('100', '500');
         }
     }
@@ -274,7 +290,6 @@ export default {
 .dashed-container {
     position: relative;
     margin-top: 20px;
-    /* Adjust to create space for the line */
 }
 
 .subordinate-top-line {
@@ -283,7 +298,6 @@ export default {
     height: 16px;
     background-color: black;
     top: -16px;
-    /* Adjust to position the line at the top of the subordinate */
     left: 50%;
     transform: translateX(-50%);
 }
