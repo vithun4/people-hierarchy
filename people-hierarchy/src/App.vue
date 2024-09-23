@@ -159,20 +159,22 @@ export default {
       container.addEventListener('mouseup', this.endDrag);
       container.addEventListener('mouseleave', this.endDrag);
 
-      // Touch Events for mobile support
-      container.addEventListener('touchstart', this.startTouchDrag);
-      container.addEventListener('touchmove', this.handleTouchDrag);
-      container.addEventListener('touchend', this.endTouchDrag);
+      // Touch Events for pinch-to-zoom and dragging
+      container.addEventListener('touchstart', this.startTouch);
+      container.addEventListener('touchmove', this.handleTouchMove);
+      container.addEventListener('touchend', this.endTouch);
     },
     startTouch(event) {
-      if (event.touches.length === 2) {
+      if (event.touches.length === 2) { // Two fingers for pinching
         this.isPinching = true;
-        this.initialPinchDistance = this.getPinchDistance(event);
-        this.initialScale = this.scale;
-      } else {
-        this.startTouchDrag(event);
+        this.initialPinchDistance = this.getPinchDistance(event); // Calculate initial pinch distance
+        this.initialScale = this.scale; 
+      } else if (event.touches.length === 1) {
+        // Single finger for dragging
+        this.startTouchDrag(event); // Call the drag function for single touch
       }
-    },
+    }
+    ,
     // Handle touch events
     startTouchDrag(event) {
       this.isDragging = true;
@@ -192,11 +194,12 @@ export default {
     },
     handleTouchMove(event) {
       if (this.isPinching && event.touches.length === 2) {
-        const pinchDistance = this.getPinchDistance(event);
-        const scaleChange = pinchDistance / this.initialPinchDistance;
-        this.scale = Math.min(Math.max(this.initialScale * scaleChange, 0.2), 3); // Keep scale within limits
-        this.applyTransform();
-      } else {
+        const pinchDistance = this.getPinchDistance(event); // Calculate the new pinch distance
+        const scaleChange = pinchDistance / this.initialPinchDistance; // Calculate how much to scale
+        this.scale = Math.min(Math.max(this.initialScale * scaleChange, 0.2), 3); // Adjust scale with limits
+        this.applyTransform(); // Apply the transformation to the container
+      } else if (event.touches.length === 1) {
+        // Handle normal drag when not pinching
         this.handleTouchDrag(event);
       }
     },
@@ -328,7 +331,7 @@ body,
   padding: 1rem;
   transition: all 0.3s ease-in-out;
   z-index: 5;
-  position: relative; 
+  position: relative;
 }
 
 .legend {
