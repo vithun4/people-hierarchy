@@ -1,21 +1,18 @@
 <template>
   <div id="app" class="p-4">
     <div class="header-container">
-      <h1 class="text-2xl font-bold text-center mb-6">People Hierarchy</h1>
-      <button @click="toggleLegend" class="legend-toggle font-semibold">
+      <h1 class="text-3xl font-bold text-center my-6">People Hierarchy</h1>
+      <button @click="toggleLegend"
+        class="legend-toggle font-semibold text-sm px-3 py-2 border rounded-md focus:outline-none transition-all duration-300 ease-in-out hover:bg-gray-200">
         {{ isLegendVisible ? 'Hide Legend ▲' : 'Show Legend ▼' }}
       </button>
     </div>
 
-    <div class="people-container" ref="peopleContainer">
+    <div class="people-container p-4" ref="peopleContainer">
       <div v-for="(person, index) in topLevelEmployees" :key="index" class="person-node">
-        <PersonNode 
-          :person="person" 
-          :level="1"
-          :departmentColors="departmentColors" 
+        <PersonNode :person="person" :level="1" :departmentColors="departmentColors"
           :loadSubordinatesCallback="fetchSubordinates"
-          @incrementDisplayedDescendants="incrementDisplayedDescendants" 
-        />
+          @incrementDisplayedDescendants="incrementDisplayedDescendants" />
       </div>
     </div>
 
@@ -239,7 +236,9 @@ export default {
 </script>
 
 <style>
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   overflow: hidden;
