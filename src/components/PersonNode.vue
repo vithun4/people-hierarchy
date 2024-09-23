@@ -2,7 +2,7 @@
     <div class="flex flex-col items-center relative">
       <!-- Manager Node -->
       <div v-if="person"
-           :class="['relative flex flex-col items-center rounded-lg shadow-md p-4 text-center w-64 border', departmentColor]">
+           :class="[ 'relative flex flex-col items-center rounded-lg shadow-md p-4 text-center w-64 border', departmentColor ]">
         <!-- Avatar or Initials -->
         <div :class="['w-12 h-12 rounded-full text-white flex items-center justify-center text-xl font-bold mb-2', avatarColor]">
           {{ initials }}
@@ -27,7 +27,7 @@
             <p>{{ person["Location"] || 'Location not specified' }}</p>
           </div>
           <div :class="['flex items-center space-x-1 border rounded-full px-3 py-1', pillColor]">
-            <p>Level {{ level }}</p> <!-- Display the level correctly -->
+            <p>Level {{ level }}</p>
           </div>
         </div>
   
@@ -43,8 +43,7 @@
             <strong>Total Cost:</strong> {{ formatCurrency(getTotalCost()) || 'N/A' }}
           </p>
           <p :class="['rounded-full px-3 py-1 text-xs border', pillColor]">
-            <strong>Management Cost Ratio:</strong>
-            {{ getIcCost() > 0 ? (getManagementCost() / getIcCost()).toFixed(2) : 'N/A' }}
+            <strong>Management Cost Ratio:</strong> {{ getManagementCostRatio() || 'N/A' }}
           </p>
         </div>
   
@@ -87,7 +86,7 @@
       person: { type: Object, required: true },
       loadSubordinatesCallback: Function,
       departmentColors: { type: Object, required: true },
-      level: { type: Number, required: true } // Ensure level is a required prop
+      level: { type: Number, required: true },
     },
     data() {
       return {
@@ -98,7 +97,7 @@
         icCostMemo: null,
         totalCostMemo: null,
         descendantCountMemo: null,
-        displayedDescendants: 0
+        displayedDescendants: 0,
       };
     },
     computed: {
@@ -119,16 +118,23 @@
     methods: {
       toggleExpand() {
         if (!this.isExpanded && !this.subordinatesLoaded) {
-          this.loadSubordinates();
+          // Load subordinates first and delay expansion until they are loaded
+          this.loadSubordinates(true);
         } else {
-          if (!this.isExpanded) {
-            const visibleDescendants = this.calculateVisibleDescendants(this.subordinates);
-            this.$emit('incrementDisplayedDescendants', visibleDescendants);
-            this.displayedDescendants = visibleDescendants;
-          } else {
-            this.$emit('incrementDisplayedDescendants', -this.displayedDescendants);
-            this.displayedDescendants = 0;
-          }
+          // Toggle visibility of descendants
+          this.toggleVisibility();
+        }
+      },
+      toggleVisibility() {
+        if (!this.isExpanded) {
+          // Expanding: Increment displayed descendants based on visible ones
+          const visibleDescendants = this.calculateVisibleDescendants(this.subordinates);
+          this.$emit('incrementDisplayedDescendants', visibleDescendants);
+          this.displayedDescendants = visibleDescendants;
+        } else {
+          // Collapsing: Decrement the displayed descendants
+          this.$emit('incrementDisplayedDescendants', -this.displayedDescendants);
+          this.displayedDescendants = 0;
         }
         this.isExpanded = !this.isExpanded;
       },
@@ -141,25 +147,10 @@
         });
         return count;
       },
-      loadSubordinates() {
-        this.loadSubordinatesCallback(this.person.EmployeeId, fetchedSubordinates => {
-          this.subordinates = fetchedSubordinates || [];
-          this.subordinatesLoaded = true;
-  
-          if (this.isExpanded) {
-            const visibleDescendants = this.calculateVisibleDescendants(this.subordinates);
-            this.$emit('incrementDisplayedDescendants', visibleDescendants);
-            this.displayedDescendants = visibleDescendants;
-          }
-        });
-      },
-      incrementDisplayedDescendants(count) {
-        this.displayedDescendants += count;
-        this.$emit('incrementDisplayedDescendants', count);
-      },
       countDescendants() {
-        if (!this.subordinatesLoaded) this.loadSubordinates();
-        if (this.descendantCountMemo === null) this.descendantCountMemo = this.calculateDescendants(this.person);
+        if (!this.descendantCountMemo) {
+          this.descendantCountMemo = this.calculateDescendants(this.person);
+        }
         return this.descendantCountMemo;
       },
       calculateDescendants(person) {
@@ -167,28 +158,60 @@
         return person.subordinates.reduce((count, subordinate) => count + 1 + this.calculateDescendants(subordinate), 0);
       },
       getManagementCost() {
-        if (this.managementCostMemo === null) this.managementCostMemo = this.calculateManagementCost(this.person);
+        if (this.managementCostMemo === null) {
+          this.managementCostMemo = this.calculateManagementCost(this.person);
+        }
         return this.managementCostMemo;
       },
       calculateManagementCost(person) {
-        return person.subordinates?.reduce((cost, sub) => cost + (sub.subordinates.length > 0 ? sub.Salary + this.calculateManagementCost(sub) : 0), 0) || 0;
+        if (!person.subordinates || !person.subordinates.length) return 0;
+        return person.subordinates.reduce((cost, sub) => {
+          return cost + (sub.subordinates.length > 0 ? sub.Salary + this.calculateManagementCost(sub) : 0);
+        }, 0);
       },
       getIcCost() {
-        if (this.icCostMemo === null) this.icCostMemo = this.calculateIcCost(this.person);
+        if (this.icCostMemo === null) {
+          this.icCostMemo = this.calculateIcCost(this.person);
+        }
         return this.icCostMemo;
       },
       calculateIcCost(person) {
-        return person.subordinates?.reduce((cost, sub) => cost + (sub.subordinates.length === 0 ? sub.Salary : this.calculateIcCost(sub)), 0) || 0;
+        if (!person.subordinates || !person.subordinates.length) return 0;
+        return person.subordinates.reduce((cost, sub) => {
+          return cost + (sub.subordinates.length === 0 ? sub.Salary : this.calculateIcCost(sub));
+        }, 0);
       },
       getTotalCost() {
-        if (this.totalCostMemo === null) this.totalCostMemo = this.calculateTotalCost(this.person);
+        if (this.totalCostMemo === null) {
+          this.totalCostMemo = this.calculateTotalCost(this.person);
+        }
         return this.totalCostMemo;
       },
       calculateTotalCost(person) {
         return person.Salary + (person.subordinates?.reduce((cost, sub) => cost + this.calculateTotalCost(sub), 0) || 0);
       },
+      getManagementCostRatio() {
+        const icCost = this.getIcCost();
+        const managementCost = this.getManagementCost();
+        return icCost > 0 ? (managementCost / icCost).toFixed(2) : 'N/A';
+      },
       formatCurrency(value) {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
+      },
+      loadSubordinates(expandAfterLoading = false) {
+        this.loadSubordinatesCallback(this.person.EmployeeId, fetchedSubordinates => {
+          this.subordinates = fetchedSubordinates || [];
+          this.subordinatesLoaded = true;
+  
+          // If expandAfterLoading is true, automatically expand after loading subordinates
+          if (expandAfterLoading) {
+            this.toggleVisibility();  // Automatically expand after loading
+          }
+        });
+      },
+      incrementDisplayedDescendants(count) {
+        this.displayedDescendants += count;
+        this.$emit('incrementDisplayedDescendants', count);
       },
       getAdjustedColor(baseColor, defaultColor) {
         return baseColor?.replace('100', '200') || defaultColor;
@@ -196,11 +219,11 @@
       getAvatarColor(baseColor, defaultColor) {
         return baseColor?.replace('100', '400') || defaultColor;
       }
-    }
+    },
   };
   </script>
   
-  <style>
+  <style scoped>
   .line-connector {
     position: absolute;
     width: 2px;
