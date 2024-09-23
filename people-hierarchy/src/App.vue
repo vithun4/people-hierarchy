@@ -10,29 +10,21 @@
       </div>
     </div>
 
-    <div class="legend">
-      <h2 class="text-xl font-bold">Legend</h2>
-      <p class="subtitle">Zoom & drag to look at descendants.</p>
-      <p class="subtitle">Click subordinates to display below</p>
-      <div class="legend-items">
-        <div v-for="(color, department) in departmentColors" :key="department" class="legend-item">
-          <div :class="['w-6 h-6 rounded-full', color]"></div>
-          <span>{{ department }}</span>
-        </div>
-      </div>
-    </div>
+    <LegendCard :departmentColors="departmentColors" />
   </div>
 </template>
 
 <script>
 import Papa from 'papaparse';
 import PersonNode from './components/PersonNode.vue';
+import LegendCard from './components/LegendCard.vue';
 import { hierarchy } from 'd3-hierarchy';
 
 export default {
   name: 'App',
   components: {
-    PersonNode
+    PersonNode,
+    LegendCard
   },
   data() {
     return {
