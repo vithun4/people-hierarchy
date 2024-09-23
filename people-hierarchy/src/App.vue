@@ -6,7 +6,7 @@
     <div class="people-container" ref="peopleContainer">
       <div v-for="(person, index) in topLevelEmployees" :key="index" class="person-node">
         <PersonNode :person="person" :departmentColors="departmentColors" :loadSubordinatesCallback="fetchSubordinates"
-          @incrementDisplayedDescendants="updateTotalDisplayedDescendants" />
+          @incrementDisplayedDescendants="incrementDisplayedDescendants" />
       </div>
     </div>
 
@@ -66,7 +66,8 @@ export default {
       translateY: 0,
       isDragging: false,
       startX: 0,
-      startY: 0
+      startY: 0,
+      displayedDescendants: 0 // Add this line to track the displayed descendants
     };
   },
   created() {
@@ -186,6 +187,9 @@ export default {
     applyTransform() {
       const container = this.$refs.peopleContainer;
       container.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+    },
+    incrementDisplayedDescendants(count) {
+      this.displayedDescendants += count;
     }
   }
 };
