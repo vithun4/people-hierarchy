@@ -1,6 +1,12 @@
 <template>
   <div id="app" class="p-4">
-    <h1 class="text-2xl font-bold text-center mb-6">People Hierarchy</h1>
+    <div class="header-container">
+      <h1 class="text-2xl font-bold text-center mb-6">People Hierarchy</h1>
+      <!-- Toggle button for the legend -->
+      <button @click="toggleLegend" class="legend-toggle font-semibold">
+        {{ isLegendVisible ? 'Hide Legend ▲' : 'Show Legend ▼' }}
+      </button>
+    </div>
 
     <!-- Simple layout for PersonNode components -->
     <div class="people-container" ref="peopleContainer">
@@ -10,7 +16,7 @@
       </div>
     </div>
 
-    <LegendCard :departmentColors="departmentColors" />
+    <LegendCard v-if="isLegendVisible" :departmentColors="departmentColors" />
   </div>
 </template>
 
@@ -59,7 +65,8 @@ export default {
       isDragging: false,
       startX: 0,
       startY: 0,
-      displayedDescendants: 0 // Add this line to track the displayed descendants
+      displayedDescendants: 0, // Add this line to track the displayed descendants
+      isLegendVisible: true // Add this line to track the visibility of the legend
     };
   },
   created() {
@@ -145,11 +152,35 @@ export default {
     initZoomAndDrag() {
       const container = this.$refs.peopleContainer;
 
+      // Mouse Events
       container.addEventListener('wheel', this.handleZoom);
       container.addEventListener('mousedown', this.startDrag);
       container.addEventListener('mousemove', this.handleDrag);
       container.addEventListener('mouseup', this.endDrag);
       container.addEventListener('mouseleave', this.endDrag);
+
+      // Touch Events for mobile support
+      container.addEventListener('touchstart', this.startTouchDrag);
+      container.addEventListener('touchmove', this.handleTouchDrag);
+      container.addEventListener('touchend', this.endTouchDrag);
+    },
+
+    // Handle touch events
+    startTouchDrag(event) {
+      this.isDragging = true;
+      const touch = event.touches[0];
+      this.startX = touch.clientX - this.translateX;
+      this.startY = touch.clientY - this.translateY;
+    },
+    handleTouchDrag(event) {
+      if (!this.isDragging) return;
+      const touch = event.touches[0];
+      this.translateX = touch.clientX - this.startX;
+      this.translateY = touch.clientY - this.startY;
+      this.applyTransform();
+    },
+    endTouchDrag() {
+      this.isDragging = false;
     },
     handleZoom(event) {
       event.preventDefault();
@@ -166,6 +197,7 @@ export default {
       this.isDragging = true;
       this.startX = event.clientX - this.translateX;
       this.startY = event.clientY - this.translateY;
+      event.target.style.zIndex = 20; // Bring to front during drag
     },
     handleDrag(event) {
       if (!this.isDragging) return;
@@ -173,8 +205,9 @@ export default {
       this.translateY = event.clientY - this.startY;
       this.applyTransform();
     },
-    endDrag() {
+    endDrag(event) {
       this.isDragging = false;
+      event.target.style.zIndex = 5; // Reset z-index when drag ends
     },
     applyTransform() {
       const container = this.$refs.peopleContainer;
@@ -182,6 +215,9 @@ export default {
     },
     incrementDisplayedDescendants(count) {
       this.displayedDescendants += count;
+    },
+    toggleLegend() {
+      this.isLegendVisible = !this.isLegendVisible;
     }
   }
 };
@@ -203,6 +239,44 @@ body,
   flex-direction: column;
 }
 
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 1;
+  position: relative;
+}
+
+.legend-toggle {
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.toggle-legend-btn {
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.toggle-legend-btn:hover {
+  background-color: #0056b3;
+}
+
 .people-container {
   display: flex;
   flex-wrap: wrap;
@@ -210,7 +284,7 @@ body,
   margin: 1rem;
   cursor: grab;
   flex-grow: 1;
-  /* Allow the container to grow and fill the available space */
+  position: relative;
 }
 
 .people-container:active {
@@ -223,6 +297,8 @@ body,
   max-width: 300px;
   padding: 1rem;
   transition: all 0.3s ease-in-out;
+  z-index: 5;
+  position: relative; 
 }
 
 .legend {
