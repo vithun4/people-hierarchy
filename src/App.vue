@@ -87,20 +87,58 @@ export default {
     },
     processData(result) {
       const cleanedData = result.data.map(row => {
-        row.Salary = parseFloat(row["Salary"].replace(/[$,]/g, '')) || 0; // Clean salary
-        row.Manager = row["Manager"] ? parseInt(row["Manager"], 10) : -1; // Handle manager IDs
-        row.EmployeeId = parseInt(row["Employee Id"], 10); // Ensure EmployeeId is a number
-        row.subordinates = []; // Initialize subordinates array
-        this.assignDepartmentColor(row["Department"]); // Assign department color
+        // Ensure salary is a valid number, default to 0 if missing or invalid
+        row.Salary = parseFloat(row["Salary"]?.replace(/[$,]/g, '')) || 0;
+
+        // Ensure Manager ID is a valid number, default to -1 if missing (indicating no manager)
+        row.Manager = row["Manager"] ? parseInt(row["Manager"], 10) : -1;
+
+        // Ensure EmployeeId is a number, throw an error or set default if invalid
+        row.EmployeeId = parseInt(row["Employee Id"], 10) || 0;
+
+        // Default to 'Unknown Department' if department is missing
+        row.Department = row["Department"] || 'Unknown Department';
+
+        // Initialize subordinates array
+        row.subordinates = [];
+
+        // Assign department color
+        this.assignDepartmentColor(row["Department"]);
+
         return row;
       });
 
       this.allEmployees = cleanedData;
 
-      // Organize subordinates under their managers
+      // Track employees to validate no circular dependencies exist
       const hierarchyMap = {};
+
       cleanedData.forEach(employee => {
         hierarchyMap[employee.EmployeeId] = employee;
+
+        // Check if employee is their own manager (circular reference)
+        if (employee.EmployeeId === employee.Manager) {
+          console.warn(`Circular reference detected: Employee ${employee.EmployeeId} is their own manager.`);
+          return; // Skip this employee or handle differently
+        }
+
+        // Now validate no cyclic dependencies
+        let currentManagerId = employee.Manager;
+        const path = new Set(); // Track the path of managers to detect cycles
+
+        while (currentManagerId !== -1) { // While there is a manager
+          if (path.has(currentManagerId)) {
+            console.warn(`Cyclic dependency detected for employee ${employee.EmployeeId}.`);
+            return; // Handle or skip the employee
+          }
+
+          path.add(currentManagerId);
+
+          // Move up the hierarchy to the next manager
+          currentManagerId = hierarchyMap[currentManagerId]?.Manager || -1;
+        }
+
+        // Add subordinates only if no cycles were detected
         if (employee.Manager !== -1 && hierarchyMap[employee.Manager]) {
           hierarchyMap[employee.Manager].subordinates.push(employee);
         }
@@ -122,6 +160,7 @@ export default {
 
       this.loading = false; // Data load complete
     },
+
     fetchSubordinates(managerId, callback) {
       const subordinates = this.allEmployees.filter(employee => employee.Manager === managerId);
       callback(subordinates); // Pass the subordinates to the `PersonNode` component
@@ -167,7 +206,7 @@ export default {
       if (event.touches.length === 2) { // Two fingers for pinching
         this.isPinching = true;
         this.initialPinchDistance = this.getPinchDistance(event); // Calculate initial pinch distance
-        this.initialScale = this.scale; 
+        this.initialScale = this.scale;
       } else if (event.touches.length === 1) {
         // Single finger for dragging
         this.startTouchDrag(event); // Call the drag function for single touch
@@ -274,7 +313,7 @@ body,
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
-  z-index: 1;
+  z-index: 10;
   position: relative;
 }
 

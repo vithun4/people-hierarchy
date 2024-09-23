@@ -68,7 +68,7 @@
         <div class="subordinate-top-line"></div>
         <!-- Subordinates (Render only when expanded and subordinates exist) -->
         <div v-if="isExpanded && subordinates.length > 0"
-            class="flex flex-col items-center mt-4 p-4 border border-black border-t-2 border-0"
+            class="flex flex-col items-center mt-4 p-4 border border-black border-t-4 border-0"
             style="border-top-width: 1.5px;">
             <div class="flex flex-row items-start space-x-4">
                 <PersonNode v-for="subordinate in subordinates" :key="subordinate.EmployeeId" :person="subordinate"
